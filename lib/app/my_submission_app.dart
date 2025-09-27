@@ -9,7 +9,7 @@ class MySubmissionApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Initialise MaterialTheme and TextTheme
-    TextTheme textTheme = createTextTheme(context, 'monteserrat', 'poppins');
+    TextTheme textTheme = createTextTheme(context, 'Montserrat', 'Poppins');
     MaterialTheme theme = MaterialTheme(textTheme);
 
     return MaterialApp(
@@ -20,7 +20,7 @@ class MySubmissionApp extends StatelessWidget {
       darkTheme: theme.light(),
       themeMode: ThemeMode.system,
       // Route config
-      initialRoute: AppRouter.splash,
+      initialRoute: AppRouter.main,
       onGenerateRoute: AppRouter.generateRouter,
     );
   }

@@ -6,8 +6,8 @@ class MainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Text('ini adalah main screen'),
+      bottomNavigationBar: BottomAppBar(
+        
       ),
     );
   }

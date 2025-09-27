@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_identification_submisison_app/app/main_screen.dart';
+import 'package:image_identification_submisison_app/app/splash_screen.dart';
 
 class AppRouter {
   static const String main = '/main';
@@ -9,6 +10,8 @@ class AppRouter {
     switch (settings.name) {
       case main:
         return MaterialPageRoute(builder: (_) => MainScreen());
+      case splash:
+        return MaterialPageRoute(builder: (_) => SplashScreen());
       default:
         return MaterialPageRoute(
           builder: (_) =>
