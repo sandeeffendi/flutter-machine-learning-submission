@@ -9,7 +9,7 @@ class MaterialTheme {
     return const ColorScheme(
       brightness: Brightness.light,
       primary: Color(0xff455a65),
-      surfaceTint: Color(0xff4c616c),
+    surfaceTint: Color(0xff4c616c),
       onPrimary: Color(0xffffffff),
       primaryContainer: Color(0xff5d737e),
       onPrimaryContainer: Color(0xffe9f7ff),
