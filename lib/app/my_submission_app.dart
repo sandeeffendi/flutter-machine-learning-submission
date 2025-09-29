@@ -20,7 +20,7 @@ class MySubmissionApp extends StatelessWidget {
       darkTheme: theme.light(),
       themeMode: ThemeMode.system,
       // Route config
-      initialRoute: AppRouter.main,
+      initialRoute: AppRouter.splash,
       onGenerateRoute: AppRouter.generateRouter,
     );
   }
