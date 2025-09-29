@@ -10,8 +10,8 @@ import 'isolate_inference.dart';
 // todo-02-service-01: create a ImageClassificationService class
 class ImageClassificationService {
   // todo-02-service-02: setup the static variable
-  final modelPath = 'assets/mobilenet.tflite';
-  final labelsPath = 'assets/labels.txt';
+  final modelPath = 'assets/models/aiy_classifier_food_v1.tflite';
+  final labelsPath = 'assets/models/probability-labels-en.txt';
 
   // todo-02-service-03: setup the variable
   late final Interpreter interpreter;
