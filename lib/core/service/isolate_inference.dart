@@ -107,6 +107,7 @@ class IsolateInference {
 // todo-03-isolate-01: create a model class
 class InferenceModel {
   CameraImage? cameraImage;
+  image_lib.Image? image;
   int interpreterAddress;
   List<String> labels;
   List<int> inputShape;
@@ -114,10 +115,11 @@ class InferenceModel {
   late SendPort responsePort;
 
   InferenceModel(
-    this.cameraImage,
     this.interpreterAddress,
     this.labels,
     this.inputShape,
-    this.outputShape,
-  );
+    this.outputShape, {
+    this.cameraImage,
+    this.image,
+  });
 }

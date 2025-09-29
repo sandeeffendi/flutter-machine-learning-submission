@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:isolate';
 
+import 'package:image/image.dart' as img;
 import 'package:camera/camera.dart';
 import 'package:flutter/services.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
@@ -51,28 +52,47 @@ class ImageClassificationService {
     await isolateInference.start();
   }
 
-  // todo-03-isolate-11: inference camera frame
+  // inference models
+  Future<Map<String, double>> _inference(InferenceModel inferenceModel) async {
+    ReceivePort responsePort = ReceivePort();
+
+    isolateInference.sendPort.send(
+      inferenceModel..responsePort = responsePort.sendPort,
+    );
+
+    var result = await responsePort.first;
+    return result;
+  }
+
+  // inference camera frame
   Future<Map<String, double>> inferenceCameraFrame(
     CameraImage cameraImage,
   ) async {
     var isolateModel = InferenceModel(
-      cameraImage,
+      cameraImage: cameraImage,
       interpreter.address,
       labels,
       inputTensor.shape,
       outputTensor.shape,
     );
 
-    ReceivePort responsePort = ReceivePort();
-    isolateInference.sendPort.send(
-      isolateModel..responsePort = responsePort.sendPort,
-    );
-    // get inference result.
-    var results = await responsePort.first;
-    return results;
+    return _inference(isolateModel);
   }
 
-  // todo-03-isolate-12: close the process from the service
+  // inferece gallery frame
+  Future<Map<String, double>> inferenceGalleryFrame(img.Image image) {
+    var isolateModel = InferenceModel(
+      image: image,
+      interpreter.address,
+      labels,
+      inputTensor.shape,
+      outputTensor.shape,
+    );
+
+    return _inference(isolateModel);
+  }
+
+  // close the process from the service
   Future<void> close() async {
     await isolateInference.close();
   }
