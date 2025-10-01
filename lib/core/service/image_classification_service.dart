@@ -10,7 +10,7 @@ import 'isolate_inference.dart';
 
 // todo-02-service-01: create a ImageClassificationService class
 class ImageClassificationService {
-  // todo-02-service-02: setup the static variable
+  // todo-02-service-02: setup the static
   final modelPath = 'assets/models/aiy_classifier_food_v1.tflite';
   final labelsPath = 'assets/models/probability-labels-en.txt';
 
@@ -45,8 +45,8 @@ class ImageClassificationService {
 
   // todo-02-service-06: run init function
   Future<void> initHelper() async {
-    _loadLabels();
-    _loadModel();
+    await _loadLabels();
+    await _loadModel();
     // todo-03-isolate-10: define a Isolate inference
     isolateInference = IsolateInference();
     await isolateInference.start();

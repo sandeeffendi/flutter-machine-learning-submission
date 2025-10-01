@@ -5,6 +5,6 @@ class GalleryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: Center(child: Text('Ini adalah gallery page')));
+    return Scaffold();
   }
 }

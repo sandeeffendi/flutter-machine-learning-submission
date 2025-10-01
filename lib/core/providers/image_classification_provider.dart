@@ -44,7 +44,8 @@ class ImageClassificationViewmodel extends ChangeNotifier {
     final image = img.decodeImage(imageData);
 
     if (image != null) {
-      await _service.inferenceGalleryFrame(image);
+      _classifications = await _service.inferenceGalleryFrame(image);
+
       notifyListeners();
     }
   }
