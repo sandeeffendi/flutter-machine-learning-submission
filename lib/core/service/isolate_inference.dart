@@ -25,24 +25,96 @@ class IsolateInference {
     _sendPort = await _receivePort.first;
   }
 
+  // static void entryPoint(SendPort sendPort) async {
+  //   final port = ReceivePort();
+  //   sendPort.send(port.sendPort);
+
+  //   await for (final InferenceModel isolateModel in port) {
+  //     // todo-03-isolate-05: create a _imagePreProcessing function and run image pre-processing
+  //     final cameraImage = isolateModel.cameraImage!;
+  //     final inputShape = isolateModel.inputShape;
+  //     final imageMatrix = _imagePreProcessing(cameraImage, inputShape);
+
+  //     // todo-03-isolate-06: run inference
+  //     final input = [imageMatrix];
+  //     final output = [List<int>.filled(isolateModel.outputShape[1], 0)];
+  //     final address = isolateModel.interpreterAddress;
+
+  //     final result = _runInference(input, output, address);
+
+  //     // todo-03-isolate-07: result preperation
+  //     int maxScore = result.reduce((a, b) => a + b);
+  //     final keys = isolateModel.labels;
+  //     final values = result
+  //         .map((e) => e.toDouble() / maxScore.toDouble())
+  //         .toList();
+
+  //     var classification = Map.fromIterables(keys, values);
+  //     classification.removeWhere((key, value) => value == 0);
+
+  //     // todo-03-isolate-08: send the result to main thread
+  //     isolateModel.responsePort.send(classification);
+  //   }
+
+  // }
+
+  static List<List<List<num>>> _imagePreProcessingFromGallery(
+    image_lib.Image galleryImage,
+    List<int> inputShape,
+  ) {
+    // Resize ke ukuran model
+    final imageInput = image_lib.copyResize(
+      galleryImage,
+      width: inputShape[1],
+      height: inputShape[2],
+    );
+
+    final imageMatrix = List.generate(
+      imageInput.height,
+      (y) => List.generate(imageInput.width, (x) {
+        final pixel = imageInput.getPixel(x, y);
+        return [pixel.r, pixel.g, pixel.b];
+      }),
+    );
+    return imageMatrix;
+  }
+
   static void entryPoint(SendPort sendPort) async {
     final port = ReceivePort();
     sendPort.send(port.sendPort);
 
     await for (final InferenceModel isolateModel in port) {
-      // todo-03-isolate-05: create a _imagePreProcessing function and run image pre-processing
-      final cameraImage = isolateModel.cameraImage!;
       final inputShape = isolateModel.inputShape;
-      final imageMatrix = _imagePreProcessing(cameraImage, inputShape);
+      List<List<List<num>>> imageMatrix;
 
-      // todo-03-isolate-06: run inference
+      if (isolateModel.cameraImage != null) {
+        // Preprocess kamera
+        imageMatrix = _imagePreProcessing(
+          isolateModel.cameraImage!,
+          inputShape,
+        );
+      } else if (isolateModel.image != null) {
+        // Preprocess gallery
+        imageMatrix = _imagePreProcessingFromGallery(
+          isolateModel.image!,
+          inputShape,
+        );
+      } else {
+        throw Exception(
+          "InferenceModel tidak punya input data (cameraImage/image)",
+        );
+      }
+
+      // Jalankan inference
       final input = [imageMatrix];
       final output = [List<int>.filled(isolateModel.outputShape[1], 0)];
-      final address = isolateModel.interpreterAddress;
+      final result = _runInference(
+        input,
+        output,
+        isolateModel.interpreterAddress,
+      );
 
-      final result = _runInference(input, output, address);
-
-      // todo-03-isolate-07: result preperation
+      // Normalisasi hasil
       int maxScore = result.reduce((a, b) => a + b);
       final keys = isolateModel.labels;
       final values = result
@@ -52,7 +124,6 @@ class IsolateInference {
       var classification = Map.fromIterables(keys, values);
       classification.removeWhere((key, value) => value == 0);
 
-      // todo-03-isolate-08: send the result to main thread
       isolateModel.responsePort.send(classification);
     }
   }

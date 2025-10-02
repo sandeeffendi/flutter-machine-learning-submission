@@ -45,9 +45,8 @@ class ImageClassificationViewmodel extends ChangeNotifier {
 
     if (image != null) {
       _classifications = await _service.inferenceGalleryFrame(image);
-
-      notifyListeners();
     }
+    notifyListeners();
   }
 
   // close everything
