@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_identification_submisison_app/app/app_router.dart';
 import 'package:image_identification_submisison_app/app/arguments/food_detail_argument.dart';
 import 'package:image_identification_submisison_app/core/providers/image_classification_provider.dart';
@@ -30,14 +31,32 @@ class GalleryPage extends StatelessWidget {
               children: <Widget>[
                 GestureDetector(
                   onTap: () async {
-                    final picker = ImagePicker();
-                    final picked = await picker.pickImage(
-                      source: ImageSource.gallery,
-                    );
+                    try {
+                      final picker = ImagePicker();
+                      final picked = await picker.pickImage(
+                        source: ImageSource.gallery,
+                      );
 
-                    if (picked != null) {
-                      await value.runClassificationViaGallery(picked.path);
-                      print(value.imagePath);
+                      if (picked != null) {
+                        final cropped = await ImageCropper().cropImage(
+                          sourcePath: picked.path,
+                          uiSettings: [
+                            AndroidUiSettings(
+                              toolbarTitle: 'Crop Image',
+                              toolbarColor: Colors.deepOrange,
+                              toolbarWidgetColor: Colors.white,
+                              initAspectRatio: CropAspectRatioPreset.original,
+                              lockAspectRatio: false,
+                            ),
+                          ],
+                        );
+
+                        if (cropped != null) {
+                          await value.runClassificationViaGallery(cropped.path);
+                        }
+                      }
+                    } catch (e) {
+                      debugPrint('error pick image on gallery. $e');
                     }
                   },
                   child: FeatureContainer(
@@ -67,25 +86,6 @@ class GalleryPage extends StatelessWidget {
                           AppRouter.foodDetail,
                           arguments: FoodDetailArgument(foodName),
                         );
-                      // }
-                      // if (value.classificationList.isNotEmpty) {
-                      //   final foodName = value.classificationList.first.$1;
-
-                      //   Navigator.pushNamed(
-                      //     context,
-                      //     AppRouter.foodDetail,
-                      //     arguments: FoodDetailArgument(foodName),
-                      //   );
-                      // } else {}
-
-                      // final foodName = value.classificationList.first.$1;
-                      // Navigator.pushNamed(context, AppRouter.foodDetail);
-
-                      // if (value.imagePath.isNotEmpty) {
-                      //   await value.runClassificationViaGallery(
-                      //     value.imagePath,
-                      //   );
-                      //   print(value.classificationList);
                       }
                     },
                     child: Text(

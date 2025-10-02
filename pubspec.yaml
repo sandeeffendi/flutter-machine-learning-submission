@@ -44,6 +44,7 @@ dependencies:
   lottie: ^3.3.2
   tflite_flutter: ^0.11.0
   image: ^4.5.4
+  image_cropper: ^11.0.0
 
 dev_dependencies:
   flutter_test:
