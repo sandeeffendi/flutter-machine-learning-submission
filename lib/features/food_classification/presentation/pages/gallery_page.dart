@@ -74,6 +74,8 @@ class GalleryPage extends StatelessWidget {
                 ),
 
                 // Lottie.asset('assets/lottie/gallery.json')
+                const SizedBox.square(dimension: 12),
+
                 ConstrainedBox(
                   constraints: BoxConstraints(minWidth: 200, maxWidth: 300),
                   child: ElevatedButton(

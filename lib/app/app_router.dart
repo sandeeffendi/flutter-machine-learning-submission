@@ -4,7 +4,7 @@ import 'package:image_identification_submisison_app/app/main_screen.dart';
 import 'package:image_identification_submisison_app/app/splash_screen.dart';
 import 'package:image_identification_submisison_app/features/food_classification/pages/camera_page.dart';
 import 'package:image_identification_submisison_app/features/food_classification/pages/food_detail_page.dart';
-import 'package:image_identification_submisison_app/features/food_classification/pages/gallery_page.dart';
+import 'package:image_identification_submisison_app/features/food_classification/presentation/pages/gallery_page.dart';
 
 class AppRouter {
   static const String main = '/main';

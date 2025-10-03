@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:image_identification_submisison_app/features/food_classification/pages/detail_page.dart';
 import 'package:image_identification_submisison_app/features/food_classification/pages/home_page.dart';
 import 'package:image_identification_submisison_app/features/search/search_page.dart';
-import 'package:image_identification_submisison_app/features/food_classification/pages/detail_page.dart';
 
 class MainScreen extends StatefulWidget {
   final int initialIndex;
