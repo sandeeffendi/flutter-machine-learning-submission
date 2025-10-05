@@ -26,11 +26,11 @@ Berikan hasil **HANYA** dalam format JSON valid seperti berikut:
 
 {
   "nutrition": {
-    "calories": <angka>,
-    "carbs": <angka>,
-    "protein": <angka>,
-    "fat": <angka>,
-    "fiber": <angka>
+    "calories": <integer>,
+    "carbs": <integer>,
+    "protein": <integer>,
+    "fat": <integer>,
+    "fiber": <integer>
   }
 }
 

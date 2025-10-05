@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_identification_submisison_app/features/food_classification/presentation/provider/nutrition_provider.dart';
 import 'package:image_identification_submisison_app/features/food_classification/presentation/provider/search_meals_by_name_provider.dart';
 import 'package:provider/provider.dart';
@@ -19,7 +20,7 @@ class _MealResultPageState extends State<MealResultPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
 
     Future.microtask(() {
       if (!mounted) return;
@@ -56,21 +57,36 @@ class _MealResultPageState extends State<MealResultPage>
             slivers: [
               SliverAppBar(
                 expandedHeight: 300,
+                leading: GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: CircleAvatar(child: Icon(Icons.arrow_back)),
+                ),
+
+                toolbarHeight: 300,
                 backgroundColor: Theme.of(context).colorScheme.primary,
 
-                pinned: true,
+                pinned: false,
                 flexibleSpace: FlexibleSpaceBar(
                   background: Image.network(
                     '${meal.thumbnail}/large',
                     fit: BoxFit.cover,
                   ),
-                  title: Text(
-                    " $percentage% ${meal.name}",
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontWeight: FontWeight.bold,
+                  title: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Theme.of(context).colorScheme.primary,
                     ),
-                    maxLines: 3,
+                    padding: EdgeInsets.all(4),
+                    child: Text(
+                      " $percentage% ${meal.name}",
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 3,
+                    ),
                   ),
                 ),
               ),
@@ -111,6 +127,7 @@ class _MealResultPageState extends State<MealResultPage>
                     tabs: const [
                       Tab(text: 'Ingredients'),
                       Tab(text: 'Nutrition'),
+                      Tab(text: 'Instruction'),
                     ],
                   ),
                 ),
@@ -121,7 +138,10 @@ class _MealResultPageState extends State<MealResultPage>
                   children: [
                     // Ingridients Tab View
                     Padding(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -130,56 +150,56 @@ class _MealResultPageState extends State<MealResultPage>
                             style: Theme.of(context).textTheme.titleLarge
                                 ?.copyWith(fontWeight: FontWeight.bold),
                           ),
-                          const SizedBox(height: 16),
-                          Expanded(
-                            child: ListView.separated(
-                              itemCount: meal.ingredients.length,
-                              separatorBuilder: (_, __) =>
-                                  const Divider(height: 16),
-                              itemBuilder: (context, index) {
-                                final ingredient = meal.ingredients[index];
-                                final measure = meal.measures[index];
+                          const SizedBox(height: 12),
 
-                                return Container(
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.surface,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: ListTile(
-                                    leading: CircleAvatar(
-                                      backgroundColor: Theme.of(
-                                        context,
-                                      ).colorScheme.primaryContainer,
-                                      child: const Icon(
-                                        Icons.restaurant_menu,
-                                        size: 20,
-                                      ),
+                          Expanded(
+                            child: Scrollbar(
+                              thumbVisibility: true,
+                              radius: const Radius.circular(8),
+                              child: ListView.separated(
+                                physics: const BouncingScrollPhysics(),
+                                itemCount: meal.ingredients.length,
+                                separatorBuilder: (_, __) =>
+                                    const SizedBox(height: 10),
+                                itemBuilder: (context, index) {
+                                  final ingredient = meal.ingredients[index];
+                                  final measure = meal.measures[index];
+
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 10,
                                     ),
-                                    title: Text(
-                                      ingredient,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyLarge
-                                          ?.copyWith(
-                                            fontWeight: FontWeight.w600,
-                                          ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          ingredient,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyLarge
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          measure.isNotEmpty ? measure : '-',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.copyWith(
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurfaceVariant,
+                                              ),
+                                        ),
+                                      ],
                                     ),
-                                    subtitle: Text(
-                                      measure.isNotEmpty ? measure : '-',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium
-                                          ?.copyWith(
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.onSurfaceVariant,
-                                          ),
-                                    ),
-                                  ),
-                                );
-                              },
+                                  );
+                                },
+                              ),
                             ),
                           ),
                         ],
@@ -239,6 +259,12 @@ class _MealResultPageState extends State<MealResultPage>
                         }
                       },
                     ),
+
+                    // Instruction / Cara pembuatan
+                    _InstructionCard(
+                      instruction: meal.instructions,
+                      mealName: meal.name,
+                    ),
                   ],
                 ),
               ),
@@ -270,3 +296,158 @@ class _NutritionRow extends StatelessWidget {
     );
   }
 }
+
+// Instruction card: expandable, copy, view-as-steps
+class _InstructionCard extends StatefulWidget {
+  final String instruction;
+  final String? mealName;
+
+  const _InstructionCard({required this.instruction, this.mealName});
+
+  @override
+  State<_InstructionCard> createState() => _InstructionCardState();
+}
+
+class _InstructionCardState extends State<_InstructionCard> {
+  bool _expanded = true;
+  bool _showSteps = false;
+
+  List<String> get _steps {
+    final text = widget.instruction.trim();
+    if (text.isEmpty) return [];
+
+    // Pisah menjadi kalimat/line; fallback ke newline jika ada
+    final parts = text
+        .split(RegExp(r'[\r\n]+|(?<=[.!?])\s+'))
+        .map((s) => s.trim())
+        .where((s) => s.isNotEmpty)
+        .toList();
+    return parts;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final steps = _steps;
+    return SingleChildScrollView(
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 1,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header row
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Cara Pembuatan',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: 'Copy instruction',
+                    icon: const Icon(Icons.copy, size: 20),
+                    onPressed: () {
+                      Clipboard.setData(
+                        ClipboardData(text: widget.instruction),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Instruction copied')),
+                      );
+                    },
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 8),
+
+              // Toggle: paragraph vs steps
+              if (steps.length > 1)
+                Row(
+                  children: [
+                    ChoiceChip(
+                      label: const Text('Paragraph'),
+                      selected: !_showSteps,
+                      onSelected: (v) =>
+                          setState(() => _showSteps = !v ? true : false),
+                    ),
+                    const SizedBox(width: 8),
+                    ChoiceChip(
+                      label: const Text('Steps'),
+                      selected: _showSteps,
+                      onSelected: (v) => setState(() => _showSteps = v),
+                    ),
+                  ],
+                ),
+
+              const SizedBox(height: 8),
+
+              // Content
+              AnimatedCrossFade(
+                firstChild: _buildParagraphView(context),
+                secondChild: _buildStepsView(context, steps),
+                crossFadeState: (_expanded
+                    ? (_showSteps
+                          ? CrossFadeState.showSecond
+                          : CrossFadeState.showFirst)
+                    : CrossFadeState.showFirst),
+                duration: const Duration(milliseconds: 200),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildParagraphView(BuildContext context) {
+    final text = widget.instruction.trim();
+    return GestureDetector(
+      onTap: () => setState(() => _expanded = !_expanded),
+      child: Text(
+        text.isEmpty ? 'No instructions provided.' : text,
+        maxLines: _expanded ? 100 : 4,
+        overflow: TextOverflow.ellipsis,
+        style: Theme.of(context).textTheme.bodyMedium,
+      ),
+    );
+  }
+
+  Widget _buildStepsView(BuildContext context, List<String> steps) {
+    if (steps.isEmpty) {
+      return Text(
+        'No instructions provided.',
+        style: Theme.of(context).textTheme.bodyMedium,
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: List.generate(steps.length, (i) {
+        final s = steps[i];
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CircleAvatar(
+                radius: 12,
+                child: Text('${i + 1}', style: const TextStyle(fontSize: 12)),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(s, style: Theme.of(context).textTheme.bodyMedium),
+              ),
+            ],
+          ),
+        );
+      }),
+    );
+  }
+}
+
+// Stat card kecil untuk angka nutrisi

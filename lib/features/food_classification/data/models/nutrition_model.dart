@@ -7,6 +7,7 @@ class NutritionModel extends Nutrition {
     required super.protein,
     required super.fat,
     required super.fiber,
+    required super.instruction
   });
 
   factory NutritionModel.fromJson(Map<String, dynamic> json) {
@@ -16,6 +17,7 @@ class NutritionModel extends Nutrition {
       protein: json['protein'],
       fat: json['fat'],
       fiber: json['fiber'],
+      instruction: json['instruction'] ?? '',
     );
   }
 }
