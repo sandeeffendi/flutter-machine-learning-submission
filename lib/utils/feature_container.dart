@@ -6,9 +6,9 @@ class FeatureContainer extends StatefulWidget {
   final double minWidth;
   final double maxWidth;
   final Color boxColor;
-  Widget? child;
+  final Widget? child;
 
-  FeatureContainer({
+  const FeatureContainer({
     super.key,
     required this.minHeight,
     required this.maxHeigth,

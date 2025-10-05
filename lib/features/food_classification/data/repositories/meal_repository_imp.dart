@@ -1,43 +1,38 @@
-import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:image_identification_submisison_app/features/food_classification/data/models/meal_model.dart';
 import 'package:image_identification_submisison_app/features/food_classification/domain/entities/meal.dart';
-import 'package:image_identification_submisison_app/features/food_classification/domain/use_cases/search_meals_by_name.dart';
+import 'package:image_identification_submisison_app/features/food_classification/domain/repositories/meal_repository.dart';
 
-enum SearchMealsState { initial, loading, loaded, error }
+class MealRepositoryImp implements MealRepository {
+  final http.Client client;
 
-class SearchMealsByNameProvider extends ChangeNotifier {
-  final SearchMealsByName searchMealsByName;
+  MealRepositoryImp(this.client);
 
-  SearchMealsByNameProvider(this.searchMealsByName);
-
-  List<Meal> _meals = [];
-  List<Meal> get meals => _meals;
-
-  SearchMealsState _state = SearchMealsState.initial;
-  SearchMealsState get state => _state;
-
-  String? _message;
-  String? get message => _message;
-
-  Future<void> fetchMeals(String query) async {
-    _state = SearchMealsState.loading;
-    notifyListeners();
-
+  @override
+  Future<List<Meal>> searchMealsByName(String query) async {
     try {
-      _meals = await searchMealsByName.execute(query);
+      final response = await client.get(
+        Uri.parse('https://www.themealdb.com/api/json/v1/1/search.php?s=$query'),
+      );
 
-      if (_meals.isEmpty) {
-        _message = 'No meals found for "$query"';
-        _state = SearchMealsState.error;
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        if (data['meals'] == null) {
+          return [];
+        }
+
+        final meals = (data['meals'] as List)
+            .map((json) => MealModel.fromJson(json).toEntity())
+            .toList();
+
+        return meals;
       } else {
-        _message = 'Meals Data loaded';
-        _state = SearchMealsState.loaded;
+        throw Exception('Failed to load meal. StatusCode: ${response.statusCode}');
       }
     } catch (e) {
-      _meals = [];
-      _message = 'Failed to load data: $e';
-      _state = SearchMealsState.error;
+      throw Exception('Repository error: $e');
     }
-
-    notifyListeners();
   }
 }

@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:image_identification_submisison_app/app/arguments/food_detail_argument.dart';
+import 'package:image_identification_submisison_app/app/arguments/meal_detail_argument.dart';
 import 'package:image_identification_submisison_app/app/main_screen.dart';
 import 'package:image_identification_submisison_app/app/splash_screen.dart';
-import 'package:image_identification_submisison_app/features/food_classification/pages/camera_page.dart';
-import 'package:image_identification_submisison_app/features/food_classification/pages/food_detail_page.dart';
+import 'package:image_identification_submisison_app/features/food_classification/presentation/pages/camera_page.dart';
 import 'package:image_identification_submisison_app/features/food_classification/presentation/pages/gallery_page.dart';
+import 'package:image_identification_submisison_app/features/food_classification/presentation/pages/meal_result_page.dart';
 
 class AppRouter {
   static const String main = '/main';
   static const String splash = '/splash';
   static const String camera = '/camera';
   static const String gallery = '/gallery';
-  static const String foodDetail = '/foodDetail';
+  static const String mealDetail = '/mealDetail';
 
   static Route<dynamic> generateRouter(RouteSettings settings) {
     switch (settings.name) {
@@ -23,10 +23,10 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => CameraPage());
       case gallery:
         return MaterialPageRoute(builder: (_) => GalleryPage());
-      case foodDetail:
-        final args = settings.arguments as FoodDetailArgument;
+      case mealDetail:
+        final args = settings.arguments as MealResultArgument;
         return MaterialPageRoute(
-          builder: (_) => FoodDetailPage(foodName: args.foodName),
+          builder: (_) => MealResultPage(mealName: args.mealName),
         );
       default:
         return MaterialPageRoute(

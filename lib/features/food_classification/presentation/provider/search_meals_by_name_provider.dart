@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_identification_submisison_app/features/food_classification/domain/entities/meal.dart';
-import 'package:image_identification_submisison_app/features/food_classification/domain/use_cases/search_meals_by_name.dart';
+import 'package:image_identification_submisison_app/features/food_classification/domain/use_cases/meals_usecases/search_meals_by_name.dart';
 
 enum SearchMealsState { initial, loading, loaded, error }
 

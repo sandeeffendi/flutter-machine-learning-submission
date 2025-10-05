@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_identification_submisison_app/app/app_router.dart';
-import 'package:image_identification_submisison_app/app/arguments/food_detail_argument.dart';
+import 'package:image_identification_submisison_app/app/arguments/meal_detail_argument.dart';
 import 'package:image_identification_submisison_app/core/providers/image_classification_provider.dart';
 import 'package:image_identification_submisison_app/utils/feature_container.dart';
 import 'package:image_picker/image_picker.dart';
@@ -81,13 +81,15 @@ class GalleryPage extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: () async {
                       if (value.classificationList.isNotEmpty) {
-                        final foodName = value.classificationList.first.$1;
+                        final mealName = value.classificationList.first;
 
                         Navigator.pushNamed(
                           context,
-                          AppRouter.foodDetail,
-                          arguments: FoodDetailArgument(foodName),
+                          AppRouter.mealDetail,
+                          arguments: MealResultArgument(mealName),
                         );
+
+                        // print(mealAnotherMeal);
                       }
                     },
                     child: Text(
