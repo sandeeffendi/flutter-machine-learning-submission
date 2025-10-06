@@ -16,6 +16,7 @@ class MealResultPage extends StatefulWidget {
 class _MealResultPageState extends State<MealResultPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -154,9 +155,11 @@ class _MealResultPageState extends State<MealResultPage>
 
                           Expanded(
                             child: Scrollbar(
+                              controller: _scrollController,
                               thumbVisibility: true,
                               radius: const Radius.circular(8),
                               child: ListView.separated(
+                                controller: _scrollController,
                                 physics: const BouncingScrollPhysics(),
                                 itemCount: meal.ingredients.length,
                                 separatorBuilder: (_, __) =>

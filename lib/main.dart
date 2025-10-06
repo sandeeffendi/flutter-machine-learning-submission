@@ -1,8 +1,10 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
 import 'package:image_identification_submisison_app/app/my_submission_app.dart';
 import 'package:image_identification_submisison_app/core/providers/image_classification_provider.dart';
+import 'package:image_identification_submisison_app/core/service/firebase_ml_service.dart';
 import 'package:image_identification_submisison_app/core/service/image_classification_service.dart';
 import 'package:image_identification_submisison_app/env/env.dart';
 import 'package:image_identification_submisison_app/features/food_classification/data/datasource/gemini_remote_datasource.dart';
@@ -12,11 +14,19 @@ import 'package:image_identification_submisison_app/features/food_classification
 import 'package:image_identification_submisison_app/features/food_classification/domain/use_cases/nutrition_usecases/get_nutrition_usecase.dart';
 import 'package:image_identification_submisison_app/features/food_classification/presentation/provider/nutrition_provider.dart';
 import 'package:image_identification_submisison_app/features/food_classification/presentation/provider/search_meals_by_name_provider.dart';
+import 'package:image_identification_submisison_app/firebase_options.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   // Tensor Flow Image Classification DI
-  final service = ImageClassificationService();
+  final firebaseService = FirebaseMlService();
+  await firebaseService.downloadModelIfNeeded();
+
+  final service = ImageClassificationService(firebaseService);
 
   // TheMealDb DI
   final client = http.Client();
