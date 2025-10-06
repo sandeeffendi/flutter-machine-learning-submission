@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:image_identification_submisison_app/app/arguments/meal_detail_argument.dart';
 import 'package:image_identification_submisison_app/app/main_screen.dart';
 import 'package:image_identification_submisison_app/app/splash_screen.dart';
-import 'package:image_identification_submisison_app/features/food_classification/presentation/pages/camera_page.dart';
 import 'package:image_identification_submisison_app/features/food_classification/presentation/pages/gallery_page.dart';
 import 'package:image_identification_submisison_app/features/food_classification/presentation/pages/meal_result_page.dart';
+import 'package:image_identification_submisison_app/features/food_classification/presentation/pages/camera_page.dart';
 
 class AppRouter {
   static const String main = '/main';

@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
 import 'package:image_identification_submisison_app/app/my_submission_app.dart';
+import 'package:image_identification_submisison_app/core/providers/camera_inference_provider.dart';
 import 'package:image_identification_submisison_app/core/providers/image_classification_provider.dart';
 import 'package:image_identification_submisison_app/core/service/firebase_ml_service.dart';
 import 'package:image_identification_submisison_app/core/service/image_classification_service.dart';
@@ -50,6 +51,9 @@ void main() async {
         ChangeNotifierProvider(
           create: (_) => ImageClassificationViewmodel(service),
         ),
+
+        // Camera Inference Provider
+        ChangeNotifierProvider(create: (_) => CameraInferenceProvider(service)),
 
         // The Meal Db Search Meal By Name Provider
         ChangeNotifierProvider(

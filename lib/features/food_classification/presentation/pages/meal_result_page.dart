@@ -81,7 +81,7 @@ class _MealResultPageState extends State<MealResultPage>
                     ),
                     padding: EdgeInsets.all(4),
                     child: Text(
-                      " $percentage% ${meal.name}",
+                      " ${percentage.round()}% ${meal.name}",
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: Theme.of(context).colorScheme.onPrimary,
                         fontWeight: FontWeight.bold,
