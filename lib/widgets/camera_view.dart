@@ -50,14 +50,14 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
               if (widget.onCameraLensDirectionChanged != null) {
                 widget.onCameraLensDirectionChanged!(
                   cameraDescription.lensDirection,
-                );
+              );
               }
               _isCameraInitialized = controller!.value.isInitialized;
             });
           }
         })
         .catchError((e) {
-          print('Error initializing camera: $e');
+          debugPrint('Error initializing camera: $e');
         });
   }
 

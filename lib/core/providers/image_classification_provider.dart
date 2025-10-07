@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:image/image.dart' as img;
 import 'package:flutter/widgets.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_identification_submisison_app/core/service/image_classification_service.dart';
 
 // create a viewmodel notifier
@@ -12,6 +13,14 @@ class ImageClassificationViewmodel extends ChangeNotifier {
 
   ImageClassificationViewmodel(this._service) {
     _service.initHelper();
+  }
+
+  CroppedFile? _croppedImage;
+  CroppedFile? get croppedImage => _croppedImage;
+
+  set croppedImage(CroppedFile? value) {
+    _croppedImage = value;
+    notifyListeners();
   }
 
   // create a state and getter to get a top three on classification item

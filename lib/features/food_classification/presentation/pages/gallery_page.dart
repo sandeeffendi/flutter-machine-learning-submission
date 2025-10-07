@@ -52,6 +52,8 @@ class GalleryPage extends StatelessWidget {
                         );
 
                         if (cropped != null) {
+                          value.croppedImage = cropped;
+
                           await value.runClassificationViaGallery(cropped.path);
                         }
                       }
@@ -82,11 +84,12 @@ class GalleryPage extends StatelessWidget {
                     onPressed: () async {
                       if (value.classificationList.isNotEmpty) {
                         final mealName = value.classificationList.first;
+                        final image = value.croppedImage;
 
                         Navigator.pushNamed(
                           context,
                           AppRouter.mealDetail,
-                          arguments: MealResultArgument(mealName),
+                          arguments: MealResultArgument(mealName, image),
                         );
 
                         // print(mealAnotherMeal);

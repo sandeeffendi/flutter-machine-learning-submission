@@ -1,150 +1,14 @@
-// import 'package:camera/camera.dart';
-// import 'package:flutter/gestures.dart';
-// import 'package:flutter/material.dart';
-// import 'package:image_identification_submisison_app/app/app_router.dart';
-// import 'package:image_identification_submisison_app/app/arguments/meal_detail_argument.dart';
-// import 'package:image_identification_submisison_app/core/providers/camera_inference_provider.dart';
-// import 'package:image_identification_submisison_app/core/providers/image_classification_provider.dart';
-// import 'package:image_identification_submisison_app/widgets/camera_view.dart';
-// import 'package:provider/provider.dart';
-
-// class CameraPage extends StatefulWidget {
-//   const CameraPage({super.key});
-
-//   @override
-//   State<CameraPage> createState() => _CameraPageState();
-// }
-
-// class _CameraPageState extends State<CameraPage> {
-//   CameraImage? _lastFrame;
-
-//   /// Format hasil inference jadi string "Label: 92.3%"
-//   String _formatResult(Map<String, double> result) {
-//     final sorted = result.entries.toList()
-//       ..sort((a, b) => b.value.compareTo(a.value));
-//     final top = sorted.first;
-//     return '${top.key}: ${(top.value * 100).toStringAsFixed(2)}%';
-//   }
-
-//   /// Ambil frame terakhir dari stream kamera
-//   Future<CameraImage?> _captureFrame() async {
-//     return _lastFrame;
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final cameraProvider = context.watch<CameraInferenceProvider>();
-
-//     return Scaffold(
-//       body: Consumer<ImageClassificationViewmodel>(
-//         builder: (context, value, child) {
-//           return Stack(
-//             children: [
-//               CameraView(
-//                 onImage: (CameraImage image) {
-//                   // Simpan frame terakhir
-//                   _lastFrame = image;
-
-//                   // Jalankan live inference
-//                   context.read<CameraInferenceProvider>().runLiveInference(
-//                     image,
-//                   );
-//                 },
-//               ),
-
-//               // Live result (confidence >= 0.8)
-//               // if (cameraProvider.liveResult != null)
-//               Consumer<CameraInferenceProvider>(
-//                 builder: (context, value, child) {
-//                   final filtered = cameraProvider.liveResult!.entries
-//                       .where((e) => e.value >= 0.8)
-//                       .toList();
-//                   if (filtered.isEmpty) return const SizedBox.shrink();
-//                   final best = filtered.first;
-//                   return Align(
-//                     alignment: Alignment.topCenter,
-//                     child: Container(
-//                       color: Colors.black54,
-//                       padding: const EdgeInsets.all(8),
-//                       child: Text(
-//                         '${best.key}: ${(best.value * 100).toStringAsFixed(1)}%',
-//                         style: const TextStyle(
-//                           color: Colors.white,
-//                           fontSize: 16,
-//                           fontWeight: FontWeight.bold,
-//                         ),
-//                       ),
-//                     ),
-//                   );
-//                 },
-//               ),
-
-//               // Analyze Button
-//               Consumer<CameraInferenceProvider>(
-//                 builder: (context, value, child) {
-//                   return Align(
-//                     alignment: Alignment.bottomCenter,
-//                     child: Padding(
-//                       padding: const EdgeInsets.all(24),
-//                       child: ElevatedButton(
-//                         onPressed: cameraProvider.isAnalyzing
-//                             ? null
-//                             : () async {
-//                                 final image = await _captureFrame();
-//                                 if (image == null) {
-//                                   ScaffoldMessenger.of(context).showSnackBar(
-//                                     SnackBar(content: Text('camera not ready')),
-//                                   );
-//                                 } else {
-//                                   final best =
-//                                       cameraProvider.liveResult!.entries.first;
-//                                   final argument = (
-//                                     best.key,
-//                                     best.value.toString(),
-//                                   );
-
-//                                   Navigator.pushNamed(
-//                                     context,
-//                                     AppRouter.mealDetail,
-//                                     arguments: MealResultArgument(argument),
-//                                   );
-//                                 }
-//                               },
-//                         style: ElevatedButton.styleFrom(
-//                           padding: const EdgeInsets.symmetric(
-//                             horizontal: 48,
-//                             vertical: 16,
-//                           ),
-//                           shape: RoundedRectangleBorder(
-//                             borderRadius: BorderRadius.circular(16),
-//                           ),
-//                         ),
-//                         child: const Text(
-//                           'Analyze',
-//                           style: TextStyle(
-//                             fontSize: 18,
-//                             fontWeight: FontWeight.bold,
-//                           ),
-//                         ),
-//                       ),
-//                     ),
-//                   );
-//                 }
-//               ),
-//             ],
-//           );
-//         },
-//       ),
-//     );
-//   }
-// }
+import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:image/image.dart' as img;
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_identification_submisison_app/app/app_router.dart';
 import 'package:image_identification_submisison_app/app/arguments/meal_detail_argument.dart';
 import 'package:image_identification_submisison_app/core/providers/camera_inference_provider.dart';
 import 'package:image_identification_submisison_app/widgets/camera_view.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
 class CameraPage extends StatefulWidget {
@@ -160,6 +24,30 @@ class _CameraPageState extends State<CameraPage> {
   /// Ambil frame terakhir dari stream kamera
   Future<CameraImage?> _captureFrame() async {
     return _lastFrame;
+  }
+
+  Future<File> _convertCameraImageToFile(CameraImage image) async {
+    final width = image.width;
+    final height = image.height;
+
+    // Konversi YUV → RGB (sederhana)
+    final img.Image rgbImage = img.Image(width: width, height: height);
+    final yPlane = image.planes[0].bytes;
+    final bytesPerRow = image.planes[0].bytesPerRow;
+
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        final pixel = yPlane[y * bytesPerRow + x];
+        rgbImage.setPixelRgb(x, y, pixel, pixel, pixel);
+      }
+    }
+
+    final tempDir = await getTemporaryDirectory();
+    final tempFile = File(
+      '${tempDir.path}/captured_${DateTime.now().millisecondsSinceEpoch}.jpg',
+    );
+    await tempFile.writeAsBytes(img.encodeJpg(rgbImage));
+    return tempFile;
   }
 
   @override
@@ -216,17 +104,46 @@ class _CameraPageState extends State<CameraPage> {
                   padding: const EdgeInsets.all(24),
                   child: ElevatedButton(
                     onPressed: () async {
-                      final image = await _captureFrame();
+                      final navigator = Navigator.of(context);
+                      final messenger = ScaffoldMessenger.of(context);
+
+                      // 1️⃣ Tangkap frame kamera (CameraImage?)
+                      final CameraImage? image = await _captureFrame();
                       if (image == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
+                        messenger.showSnackBar(
                           const SnackBar(content: Text('Camera not ready')),
                         );
                         return;
                       }
 
+                      // 2️⃣ Konversi CameraImage → File sementara
+                      final tempFile = await _convertCameraImageToFile(image);
+
+                      // 3️⃣ Jalankan ImageCropper
+                      final cropped = await ImageCropper().cropImage(
+                        sourcePath: tempFile.path,
+                        uiSettings: [
+                          AndroidUiSettings(
+                            toolbarTitle: 'Crop Image',
+                            toolbarColor: Colors.deepOrange,
+                            toolbarWidgetColor: Colors.white,
+                            initAspectRatio: CropAspectRatioPreset.original,
+                            lockAspectRatio: false,
+                          ),
+                        ],
+                      );
+
+                      if (cropped == null) {
+                        messenger.showSnackBar(
+                          const SnackBar(content: Text('Crop canceled')),
+                        );
+                        return;
+                      }
+
+                      // 4️⃣ Ambil hasil analisis kamera
                       final result = cameraProvider.liveResult;
                       if (result == null || result.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
+                        messenger.showSnackBar(
                           const SnackBar(
                             content: Text('No result from analysis'),
                           ),
@@ -234,38 +151,24 @@ class _CameraPageState extends State<CameraPage> {
                         return;
                       }
 
-                      // Ambil label terbaik
+                      // 5️⃣ Ambil label terbaik
                       final sorted = result.entries.toList()
                         ..sort((a, b) => b.value.compareTo(a.value));
                       final bestLabel = sorted.first;
+
+                      // 6️⃣ Buat argument untuk navigasi
                       final argument = (
                         bestLabel.key,
                         bestLabel.value.toString(),
                       );
-                      // Navigasi dengan argument aman
 
-                      Navigator.pushNamed(
-                        context,
+                      // 7️⃣ Navigasi ke halaman detail
+                      navigator.pushNamed(
                         AppRouter.mealDetail,
-                        arguments: MealResultArgument(argument),
+                        arguments: MealResultArgument(argument, cropped),
                       );
                     },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 48,
-                        vertical: 16,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    child: const Text(
-                      'Analyze',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    child: const Text('Analyze'),
                   ),
                 ),
               );

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:image_identification_submisison_app/features/food_classification/domain/entities/meal.dart';
 import 'package:image_identification_submisison_app/features/food_classification/domain/use_cases/meals_usecases/search_meals_by_name.dart';
 
-enum SearchMealsState { initial, loading, loaded, error }
+enum SearchMealsState { initial, loading, loaded, loadedWithoutData, error }
 
 class SearchMealsByNameProvider extends ChangeNotifier {
   final SearchMealsByName searchMealsByName;
@@ -27,7 +27,7 @@ class SearchMealsByNameProvider extends ChangeNotifier {
 
       if (_meals.isEmpty) {
         _message = 'No meals found for "$query"';
-        _state = SearchMealsState.error;
+        _state = SearchMealsState.loadedWithoutData;
       } else {
         _message = 'Meals Data loaded';
         _state = SearchMealsState.loaded;

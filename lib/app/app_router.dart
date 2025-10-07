@@ -26,7 +26,10 @@ class AppRouter {
       case mealDetail:
         final args = settings.arguments as MealResultArgument;
         return MaterialPageRoute(
-          builder: (_) => MealResultPage(mealName: args.mealName),
+          builder: (_) => MealResultPage(
+            mealName: args.mealName,
+            croppedFile: args.croppedFile,
+          ),
         );
       default:
         return MaterialPageRoute(

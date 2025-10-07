@@ -1,13 +1,21 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_identification_submisison_app/features/food_classification/presentation/provider/nutrition_provider.dart';
 import 'package:image_identification_submisison_app/features/food_classification/presentation/provider/search_meals_by_name_provider.dart';
 import 'package:provider/provider.dart';
 
 class MealResultPage extends StatefulWidget {
   final (String, String) mealName;
+  final CroppedFile? croppedFile;
 
-  const MealResultPage({super.key, required this.mealName});
+  const MealResultPage({
+    super.key,
+    required this.mealName,
+    required this.croppedFile,
+  });
 
   @override
   State<MealResultPage> createState() => _MealResultPageState();
@@ -43,6 +51,56 @@ class _MealResultPageState extends State<MealResultPage>
         builder: (context, value, child) {
           if (value.state == SearchMealsState.loading) {
             return Center(child: CircularProgressIndicator());
+          }
+          if (value.state == SearchMealsState.loadedWithoutData) {
+            return CustomScrollView(
+              slivers: [
+                SliverAppBar(
+                  expandedHeight: 300,
+                  leading: GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: CircleAvatar(child: Icon(Icons.arrow_back)),
+                  ),
+
+                  toolbarHeight: 300,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+
+                  pinned: false,
+                  flexibleSpace: FlexibleSpaceBar(
+                    background: Image.file(
+                      File(widget.croppedFile!.path),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                SliverFillRemaining(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          '${widget.mealName.$1} : ${((double.parse(widget.mealName.$2) * 100).round()).toString()}%',
+                          style: Theme.of(context).textTheme.headlineLarge,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+
+                        SizedBox(height: 20),
+                        Text(
+                          "'${widget.mealName.$1}' not found on TheMealDb",
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            );
           }
           if (value.state == SearchMealsState.error) {
             return Center(child: Text(value.message!));
@@ -146,6 +204,26 @@ class _MealResultPageState extends State<MealResultPage>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              children: [
+                                Image.file(
+                                  File(widget.croppedFile!.path),
+                                  height: 30,
+                                ),
+                                SizedBox(width: 20),
+                                Text(
+                                  '${widget.mealName.$1} : ${((double.parse(widget.mealName.$2) * 100).round()).toString()}%',
+                                  style: Theme.of(context).textTheme.bodyLarge
+                                      ?.copyWith(fontWeight: FontWeight.bold),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 20),
                           Text(
                             'Ingredients',
                             style: Theme.of(context).textTheme.titleLarge
